@@ -200,6 +200,11 @@ namespace ReactiveUI
             }
         }
 
+        /// <summary>
+        /// If set to True, makes sure that Bind/OneWayBind View bindings are marshalled to UI thread
+        /// </summary>
+        public static bool MarshalUiBindingsToMainThread { get; set; }
+
         [MethodImpl(MethodImplOptions.NoOptimization)]
         internal static void EnsureInitialized()
         {

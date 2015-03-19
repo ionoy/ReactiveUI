@@ -664,6 +664,9 @@ namespace ReactiveUI
                     signalViewUpdate.Select(_ => false) : 
                     view.WhenAnyDynamic(viewExpression, x => (TVProp) x.Value).Select(_ => false));
 
+            if (RxApp.MarshalUiBindingsToMainThread)
+                somethingChanged = somethingChanged.ObserveOn(RxApp.MainThreadScheduler);
+
             var changeWithValues = somethingChanged.Select(isVm => {
                 TVMProp vmValue; TVProp vValue;
                 if (!Reflection.TryGetValueForPropertyChain(out vmValue, view.ViewModel, vmExpression.GetExpressionChain()) ||
@@ -809,6 +812,9 @@ namespace ReactiveUI
                 return converter.TryConvert(fallbackValue(), typeof(TVProp), conversionHint, out tmp) ? (TVProp)tmp : default(TVProp);
             };
 
+            if (RxApp.MarshalUiBindingsToMainThread)
+                source = source.ObserveOn(RxApp.MainThreadScheduler);
+
             IDisposable disp = bindToDirect(source, view, viewExpression, fallbackWrapper);
 
             return new ReactiveBinding<TView, TViewModel, TVProp>(view, viewModel, viewExpression, vmExpression, source, BindingDirection.OneWay, disp);
@@ -875,6 +881,9 @@ namespace ReactiveUI
             if (!ret) return null;
 
             var source = Reflection.ViewModelWhenAnyValue(viewModel, view, vmExpression).Select(x => (TProp)x).Select(selector);
+            
+            if (RxApp.MarshalUiBindingsToMainThread)
+                source = source.ObserveOn(RxApp.MainThreadScheduler);
 
             IDisposable disp = bindToDirect(source, view, viewExpression, fallbackValue);
 
